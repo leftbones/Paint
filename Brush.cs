@@ -27,14 +27,17 @@ class Brush {
         HideCursor();
     }
 
-    public void Paint() {
+    public void Paint(int index) {
+        var Color = index == 0 ? PrimaryColor : SecondaryColor;
+
         var LinePoints = Utility.GetLinePoints(Position, LastPosition, Size).Distinct().ToList();
         var PointCache = new List<Vector2i>();
 
         foreach (var Point in LinePoints) {
             if (PointCache.Contains(Point)) continue;
             PointCache.Add(Point);
-            Canvas.SetPixel(Point, PrimaryColor);
+
+		    Canvas.SetPixel(Point, Color);
         }
     }
 
@@ -42,9 +45,9 @@ class Brush {
         Size = (byte)Math.Clamp(Size - amount, 1, 255);
     }
 
-    public void Draw() {
+    public void Draw(int zoom) {
         int X = (Position.X - (Size / 2)) * Scale;
         int Y = (Position.Y - (Size / 2)) * Scale;
-        DrawRectangleLines(X, Y, Size * Scale, Size * Scale, Color.BLACK);
+        DrawRectangleLines(X * zoom, Y * zoom, (Size * Scale) * zoom, (Size * Scale) * zoom, Color.BLACK);
     }
 }

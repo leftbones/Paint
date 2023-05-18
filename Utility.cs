@@ -4,11 +4,11 @@ using static Raylib_cs.Raylib;
 namespace Paint;
 
 static class Utility {
-    // Get the position of the mouse, snapped to an integer grid
-    public static Vector2i GetMousePos(int scale) {
+    // Get the position of the mouse, snapped to an integer grid, adjusted for scale and zoom
+    public static Vector2i GetMousePos(int scale, int zoom) {
         return new Vector2i(
-            (int)Math.Round((double)GetMouseX() / scale),
-            (int)Math.Round((double)GetMouseY() / scale)
+            (int)Math.Round((double)GetMouseX() / zoom / scale),
+            (int)Math.Round((double)GetMouseY() / zoom / scale)
         );
     }
 
