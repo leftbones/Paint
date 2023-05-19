@@ -7,6 +7,7 @@ namespace Paint;
 class Canvas {
     public Vector2i WindowSize { get; private set; }
     public Vector2i Size { get; private set; }
+    public Vector2i Position { get; private set; }
     public int Scale { get; private set; }
     public int Zoom { get; private set;  }
 
@@ -26,7 +27,7 @@ class Canvas {
     public Canvas(Vector2i window_size, Vector2i canvas_size) {
         WindowSize = window_size;
         Size = canvas_size;
-        Scale = 4;
+        Scale = 2;
         Zoom = 1;
 
         Brush = new Brush(this);
@@ -56,6 +57,10 @@ class Canvas {
         Zoom = Math.Clamp(Zoom + amount, 1, 16);
     }
 
+    public void MoveViewport(int x, int y) {
+        Position = new Vector2i(Position.X + x, Position.Y + y);
+    }
+
     // Get a pixel from the canvas
     public ByteColor GetPixel(Vector2i pos) {
         return Matrix[pos.X, pos.Y];
@@ -81,7 +86,7 @@ class Canvas {
     public void Input() {
         // Update Brush Position
         Brush.LastPosition = Brush.Position;
-        Brush.Position = Utility.GetMousePos(Scale, Zoom);
+        Brush.Position = Utility.GetMousePos(Position, Scale, Zoom);
 
         // Adjust Brush Size
         int MouseWheel = (int)GetMouseWheelMove();
@@ -100,6 +105,12 @@ class Canvas {
 
         if (IsKeyPressed(KeyboardKey.KEY_DOWN))
             AdjustZoom(-1);
+
+        // Move "Viewport"
+        if (IsKeyDown(KeyboardKey.KEY_W)) MoveViewport(0, -1);
+        if (IsKeyDown(KeyboardKey.KEY_S)) MoveViewport(0, 1);
+        if (IsKeyDown(KeyboardKey.KEY_A)) MoveViewport(-1, 0);
+        if (IsKeyDown(KeyboardKey.KEY_D)) MoveViewport(1, 0);
     }
 
     // Update all canvas elements
@@ -110,7 +121,7 @@ class Canvas {
     // Draw all canvas elements
     public unsafe void Draw() {
         // Background
-        DrawTexturePro(BackgroundTexture, new Rectangle(0, 0, BackgroundTexture.width, BackgroundTexture.height), new Rectangle(0, 0, (Size.X * Scale) * Zoom, (Size.Y * Scale) * Zoom), Vector2.Zero, 0, Color.WHITE);
+        DrawTexturePro(BackgroundTexture, new Rectangle(0, 0, BackgroundTexture.width, BackgroundTexture.height), new Rectangle(Position.X, Position.Y, (Size.X * Scale) * Zoom, (Size.Y * Scale) * Zoom), Vector2.Zero, 0, Color.WHITE);
 
         // Matrix
         ImageClearBackground(ref MatrixImage, Color.MAGENTA);
@@ -125,10 +136,10 @@ class Canvas {
 
         UpdateTexture(MatrixTexture, MatrixImage.data);
 
-        DrawTexturePro(MatrixTexture, new Rectangle(0, 0, Size.X, Size.Y), new Rectangle(0, 0, (Size.X * Scale) * Zoom, (Size.Y * Scale) * Zoom), Vector2.Zero, 0, Color.WHITE);
+        DrawTexturePro(MatrixTexture, new Rectangle(0, 0, Size.X, Size.Y), new Rectangle(Position.X, Position.Y, (Size.X * Scale) * Zoom, (Size.Y * Scale) * Zoom), Vector2.Zero, 0, Color.WHITE);
 
         // Brush
-	    Brush.Draw(Zoom);
+	    Brush.Draw(Position, Zoom, Scale);
 
         // HUD
         DrawText($"Zoom: {Zoom}", 6, 6, 20, Color.BLACK);

@@ -5,11 +5,13 @@ namespace Paint;
 
 static class Utility {
     // Get the position of the mouse, snapped to an integer grid, adjusted for scale and zoom
-    public static Vector2i GetMousePos(int scale, int zoom) {
-        return new Vector2i(
-            (int)Math.Round((double)GetMouseX() / zoom / scale),
-            (int)Math.Round((double)GetMouseY() / zoom / scale)
+    public static Vector2i GetMousePos(Vector2i position, int scale, int zoom) {
+        var MousePos = new Vector2i(
+            (int)Math.Round((double)GetMouseX() / zoom / scale) * zoom * scale,
+            (int)Math.Round((double)GetMouseY() / zoom / scale) * zoom * scale
         );
+        var AdjustedPos = MousePos / zoom / scale;
+        return AdjustedPos - (position / zoom / scale);
     }
 
     // Get the points along a congiuous line between two points
