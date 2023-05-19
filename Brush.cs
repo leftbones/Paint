@@ -43,7 +43,6 @@ class Brush {
         Size = (byte)Math.Clamp(Size - amount, 1, 255);
     }
 
-    // Grid snap: Round(Pos.X / Width) * Width
     public void Draw(Vector2i position, int zoom, int scale) {
         var MousePos = Utility.GetMousePos(position, scale, zoom);
 
@@ -53,6 +52,6 @@ class Brush {
         );
 
         int S = Size * scale * zoom;
-        DrawRectangleLines(BrushPos.X, BrushPos.Y, S, S, Color.BLACK);
+        DrawRectangleLines(BrushPos.X + position.X, BrushPos.Y + position.Y, S, S, Color.BLACK);
     }
 }
